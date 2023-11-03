@@ -137,7 +137,7 @@ const Generator = () => {
     <Grid container justifyContent="center" alignItems="center">
       <Card>
         <CardContent>
-        <ButtonGroup
+          <ButtonGroup
             variant="contained"
             color="primary"
             sx={{
@@ -186,6 +186,38 @@ const Generator = () => {
           >
             <Button onClick={saveImagesAsSingleSVG}>Save as SVG</Button>
             <Button onClick={saveImagesAsSinglePNG}>Save as PNG</Button>
+          </ButtonGroup>
+          <ButtonGroup
+            color="secondary"
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "20px",
+              boxShadow: 0,
+            }}
+          >
+            <Button
+              color="info"
+              onClick={() =>
+                window.open(
+                  "https://www.linkedin.com/in/ali-yorulmaz-1a67a518a/"
+                )
+              }
+            >
+              LinkedIn
+            </Button>
+            <Button
+              color="info"
+              onClick={() => window.open("https://github.com/aliyorulmazdev")}
+            >
+              GitHub
+            </Button>
+            <Button
+              color="info"
+              onClick={() => window.open("https://instagram.com/kubrag_ali")}
+            >
+              Instagram
+            </Button>
           </ButtonGroup>
         </CardContent>
       </Card>
