@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import { toast } from "react-toastify";
+import Tour from "reactour"; // reactour kütüphanesini ekleyin
 
 const Generator = () => {
   const [svgElements, setSvgElements] = useState([]);
@@ -50,6 +51,34 @@ const Generator = () => {
     setSvgElements(newElements);
   };
 
+  const tourSteps = [
+    {
+      selector: ".generate-button",
+      content: "Bu düğmeye tıklayarak rastgele şekiller oluşturabilirsiniz.",
+    },
+    {
+      selector: ".color-box",
+      content:
+        "Renk paletini değiştirmek için buradaki renkleri seçebilirsiniz.",
+    },
+    {
+      selector: ".save-svg-button",
+      content:
+        "Şimdi 'Save as SVG' düğmesine tıklayarak bu görseli SVG olarak kaydedebilirsiniz.",
+    },
+    {
+      selector: ".understood-button",
+      content: "Hepsi Bu! Şimdi sanat zamanı!",
+    },
+  ];
+
+  const [isTourOpen, setIsTourOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const startTour = () => {
+    setIsTourOpen(true);
+  };
+
   const saveImagesAsSinglePNG = () => {
     const imageContainers = document.querySelectorAll(".image");
 
@@ -72,8 +101,8 @@ const Generator = () => {
 
         if (index === 23) {
           const now = new Date();
-          const datePart = now.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD format
-          const timePart = now.toTimeString().slice(0, 8).replace(/:/g, ""); // HHMMSS format
+          const datePart = now.toISOString().slice(0, 10).replace(/-/g, "");
+          const timePart = now.toTimeString().slice(0, 8).replace(/:/g, "");
           const filename = `${datePart}-${timePart}-all_images.png`;
 
           const singleImageDataUrl = canvas.toDataURL("image/png");
@@ -109,8 +138,8 @@ const Generator = () => {
     svgData += "</svg>";
 
     const now = new Date();
-    const datePart = now.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD format
-    const timePart = now.toTimeString().slice(0, 8).replace(/:/g, ""); // HHMMSS format
+    const datePart = now.toISOString().slice(0, 10).replace(/-/g, "");
+    const timePart = now.toTimeString().slice(0, 8).replace(/:/g, "");
     const filename = `${datePart}-${timePart}-generatedtexture.svg`;
 
     const blob = new Blob([svgData], { type: "image/svg+xml" });
@@ -146,9 +175,21 @@ const Generator = () => {
               boxShadow: 0,
             }}
           >
-            <Button onClick={generateRandomImage}>Generate</Button>
+            <Button onClick={generateRandomImage} className="generate-button">
+              Generate
+            </Button>
+            <Button color='secondary' onClick={startTour}>Bana Öğret</Button>
           </ButtonGroup>
-
+          <Tour
+            steps={tourSteps}
+            isOpen={isTourOpen}
+            onRequestClose={() => {
+              setCurrentStep(0);
+              setIsTourOpen(false);
+            }}
+            currentStep={currentStep}
+            onBeforeChange={(newStep) => setCurrentStep(newStep)}
+          />
           <div className="palette">
             {colorPalette.map((color, index) => (
               <div key={index} className="color-box">
@@ -184,7 +225,9 @@ const Generator = () => {
               boxShadow: 0,
             }}
           >
-            <Button onClick={saveImagesAsSingleSVG}>Save as SVG</Button>
+            <Button onClick={saveImagesAsSingleSVG} className="save-svg-button">
+              Save as SVG
+            </Button>
             <Button onClick={saveImagesAsSinglePNG}>Save as PNG</Button>
           </ButtonGroup>
           <ButtonGroup
