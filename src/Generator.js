@@ -214,7 +214,7 @@ const Generator = () => {
             </Button>
             <Button
               color="info"
-              onClick={() => window.open("https://instagram.com/kubrag_ali")}
+              onClick={() => window.open("https://instagram.com/kuprag_ali")}
             >
               Instagram
             </Button>
