@@ -7,6 +7,7 @@ import Grid from "@mui/material/Grid";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import { toast } from "react-toastify";
 import Tour from "reactour"; // reactour kütüphanesini ekleyin
+import axios from "axios";
 
 const Generator = () => {
   const [svgElements, setSvgElements] = useState([]);
@@ -16,6 +17,63 @@ const Generator = () => {
     "#5733FF",
   ]);
 
+  const uploadToImgbb = async () => {
+    const imageContainers = document.querySelectorAll(".image");
+  
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = 400;
+    canvas.height = 600;
+  
+    imageContainers.forEach((imageContainer, index) => {
+      const svgDataUrl = imageContainer.querySelector("svg").outerHTML;
+  
+      const img = new Image();
+      img.src = "data:image/svg+xml," + encodeURIComponent(svgDataUrl);
+  
+      const row = Math.floor(index / 4);
+      const col = index % 4;
+  
+      img.onload = () => {
+        context.drawImage(img, col * 100, row * 100, 100, 100);
+  
+        if (index === 23) {
+          canvas.toBlob(async (blob) => {
+            const formData = new FormData();
+            formData.append("image", blob);
+  
+            try {
+              const response = await axios.post("https://api.imgbb.com/1/upload", formData, {
+                params: {
+                  key: "53e046c88fda1d058938a434f4f15961", // Replace with your imgbb API key
+                },
+              });
+  
+              // Handle the imgbb API response
+              const imageURL = response.data.data.url;
+              console.log("Imgbb API response:", imageURL);
+  
+              // Copy the URL to the clipboard
+              await navigator.clipboard.writeText(imageURL);
+  
+              toast.success("Image uploaded to imgbb. URL copied to clipboard.", {
+                position: "bottom-center",
+                autoClose: 3000,
+              });
+            } catch (error) {
+              console.error("Error uploading to imgbb:", error);
+              toast.error("Failed to upload to imgbb.", {
+                position: "bottom-center",
+                autoClose: 3000,
+              });
+            }
+          }, "image/png");
+        }
+      };
+    });
+  };
+  
+  
   const generateRandomImage = () => {
     const getRandomColor = () => {
       const randomIndex = Math.floor(Math.random() * colorPalette.length);
@@ -229,6 +287,8 @@ const Generator = () => {
               Save as SVG
             </Button>
             <Button onClick={saveImagesAsSinglePNG}>Save as PNG</Button>
+            <Button onClick={uploadToImgbb}>Upload</Button>
+
           </ButtonGroup>
           <ButtonGroup
             color="secondary"
