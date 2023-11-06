@@ -7,6 +7,8 @@ import Grid from "@mui/material/Grid";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import { toast } from "react-toastify";
 import Tour from "reactour"; // reactour kütüphanesini ekleyin
+import axios from "axios";
+
 
 const Generator = () => {
   const [svgElements, setSvgElements] = useState([]);
@@ -15,6 +17,60 @@ const Generator = () => {
     "#33FF57",
     "#5733FF",
   ]);
+
+  const sendSVGToServer = () => {
+    const imageContainers = document.querySelectorAll(".image");
+    let svgData = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>';
+    svgData += '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" ';
+    svgData += '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
+    svgData +=
+      '<svg width="400" height="600" xmlns="http://www.w3.org/2000/svg">';
+  
+    imageContainers.forEach((imageContainer, index) => {
+      const svgContent = imageContainer.querySelector("svg").outerHTML;
+      const row = Math.floor(index / 4) * 100;
+      const col = (index % 4) * 100;
+      svgData += `<g transform="translate(${col},${row})">${svgContent}</g>`;
+    });
+  
+    svgData += "</svg>";
+  
+    function generateRandomString(length) {
+      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let result = "";
+      const charsetLength = charset.length;
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charsetLength);
+        result += charset.charAt(randomIndex);
+      }
+      return result;
+    }
+    
+    const generatedString = generateRandomString(10);
+    // Sunucuya SVG dosyası ve "generatedstring" gönderin
+    axios
+      .post("http://localhost:3001/save-svg", { svgData, generatedString }, {
+        headers: {
+          "Content-Type": "application/json", // JSON içerik türü
+        },
+      })
+      .then((response) => {
+        console.log("SVG dosyası sunucuya gönderildi:", response.data);
+        toast.success("SVG dosyası sunucuya gönderildi.", {
+          position: "bottom-center",
+          autoClose: 3000,
+        });
+      })
+      .catch((error) => {
+        console.error("SVG dosyasını sunucuya gönderme hatası:", error);
+        toast.error("SVG dosyasını sunucuya gönderirken hata oluştu.", {
+          position: "bottom-center",
+          autoClose: 3000,
+        });
+      });
+  };
+  
+  
 
   const generateRandomImage = () => {
     const getRandomColor = () => {
@@ -178,7 +234,9 @@ const Generator = () => {
             <Button onClick={generateRandomImage} className="generate-button">
               Generate
             </Button>
-            <Button color='secondary' onClick={startTour}>Bana Öğret</Button>
+            <Button color="secondary" onClick={startTour}>
+              Bana Öğret
+            </Button>
           </ButtonGroup>
           <Tour
             steps={tourSteps}
@@ -229,6 +287,9 @@ const Generator = () => {
               Save as SVG
             </Button>
             <Button onClick={saveImagesAsSinglePNG}>Save as PNG</Button>
+            <Button onClick={sendSVGToServer} className="send-to-server-button">
+              Send to Server
+            </Button>
           </ButtonGroup>
           <ButtonGroup
             color="secondary"
